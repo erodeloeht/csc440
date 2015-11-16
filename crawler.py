@@ -17,8 +17,8 @@ csvfile = open('results.csv','w')
 csv_writer = csv.DictWriter(csvfile,delimiter='\t',fieldnames=fieldnames)
 csv_writer.writeheader()
 
-for i in range(1,100):
-  print 'getting document ',i,' url: ',url
+for i in range(1,5):
+  print 'getting document ',i,'\turl: ',url,i
 
   response = urllib2.urlopen(url + str(i))
   html = response.read()
@@ -162,7 +162,7 @@ for i in range(1,100):
       times_cited = int(soup.find(title="View all of the articles that cite this one").get_text().strip())
       #DEBUG print 'cited references',cited_references
       #DEBUG print 'times cited',times_cited
- except:
+    except:
       print 'Error getting citations'
     
     csv_row.append(list(keywords))
