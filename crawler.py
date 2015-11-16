@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 
 # need to add doc number
 url = 'https://apps.webofknowledge.com/full_record.do?product=UA&search_mode=GeneralSearch&qid=3&SID=4FU9EfsOv1yoMWFj6ac&page=1&doc='
+url = 'https://apps.webofknowledge.com/full_record.do?product=UA&search_mode=GeneralSearch&qid=3&SID=1CnSdiSGNBYzkPof4Er&page=1&doc='
 
 for i in range(1,2):
   response = urllib2.urlopen(url + str(i))
@@ -37,16 +38,22 @@ for i in range(1,2):
   for el in additional_info:
     print el.find(class_='title3')
 
-    for ch in el.find(class_='FR_label'):
-      print dir(ch)
-      if ch.span:
-        print ch.span
-      elif ch.p:
-        print ch.p
+    try:
+      for ch in el.find(class_='FR_label'):
+        _x = BeautifulSoup(ch,'html.parser')
+        if _x.span:
+            print _x.span
+        elif _x.p:
+            print _x.p
+    except:
+        print 'Error here'
 
-    for ch in el.find(class_='FR_field'):
-      if ch.span:
-        print ch.span
-      elif ch.p:
-        print ch.p
-
+    try:
+      for ch in el.find(class_='FR_field'):
+        _x = BeautifulSoup(ch,'html_parser')
+        if _x.span:
+            print _x.span
+        elif _x.p:
+            print _x.p
+    except:
+        print 'Error here'
