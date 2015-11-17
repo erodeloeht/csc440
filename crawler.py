@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
+import time
 import urllib2
 import csv
 import codecs
@@ -9,22 +9,33 @@ from bs4 import BeautifulSoup
 
 
 # need to add doc number
-url = 'https://apps.webofknowledge.com/full_record.do?product=UA&search_mode=GeneralSearch&qid=4&SID=4Fg9ZyEed24U5s27DbQ&page=1&doc='
+url = 'https://apps.webofknowledge.com/full_record.do?product=UA&search_mode=GeneralSearch&qid=3&SID=1E3wtczCFF7O1Yax2oe&doc='
+header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36'}
 
 # Header
-fieldnames = ['publication','title','authors_emails','authors_names','authors_addresses','institutions','keywords','publication year','if','times_cited']
+fieldnames = ['publication','doc_num','title','authors_emails','authors_names','authors_addresses','institutions','keywords','publication year','if','times_cited']
 
 logfile = codecs.open('logfile.txt','w',encoding='utf-8')
 csvfile = codecs.open('results.txt','w',encoding='utf-8')
 csv_writer = csv.DictWriter(csvfile,delimiter='\t',fieldnames=fieldnames)
 csv_writer.writeheader()
 
-for j in range(1,850):
-  for i in range(1,100):
-    # keeping track of the current document
-    print 'getting document ',j*i
+document_batch = 95
+error_flag = False
+for j in range(870):
+  if error_flag:
+    break
+  time.sleep(20)
+  for i in range(1,document_batch):
+    if error_flag:
+      break
+    #else:
+    #  time.sleep(2)
 
-    response = urllib2.urlopen(url + str(i*j))
+    # keeping track of the current document
+    print 'getting document ',str(j*(document_batch-1)+i)
+    request = urllib2.Request(url + str(i+j*(document_batch-1)),headers= header)
+    response = urllib2.urlopen(request)
     html = response.read()
     soup = BeautifulSoup(html, 'html.parser')
 
@@ -40,15 +51,13 @@ for j in range(1,850):
       print 'problem getting the publication name'
       print 'probably connection drop' #fix connection drops
       with open('last_doc.txt','w') as last_doc_file:
-        last_doc_file.write(str((i-1)*j))
+        last_doc_file.write(str((i-1)+(j*(document_batch-1))))
+      error_flag=True 
       break
 
 
     #main loop
     if publication in ['NATURE','SCIENCE']:
-
-      # generating the log file
-      logfile.write('url: '+url+str(i)+'\n')
 
       # title
       try:
@@ -157,21 +166,22 @@ for j in range(1,850):
 
       # citations
       try:
-        cited_references = int(soup.find(title="View this record's bibliography").get_text().strip())
+        #cited_references = int(soup.find(title="View this record's bibliography").get_text().strip())
         times_cited = int(soup.find(title="View all of the articles that cite this one").get_text().strip())
         #DEBUG print 'cited references',cited_references
         #DEBUG print 'times cited',times_cited
       except:
         print 'Error getting citations'
+        #cited_references = -1
+        times_cited = 0
 
       #csv_writter.writerow('keywords','publication year','if','times_cited')
 
       # save everything to a file
       try:
-        csv_writer.writerow({'publication':publication,'title':title,'authors_emails':authors['email'],'authors_names':list(authors['names']),'authors_addresses':list(authors['addresses']),'institutions':list(authors['addresses_names']),'keywords':list(keywords),'publication year':pub['date'],'if':_ifs,'times_cited':times_cited})
+        csv_writer.writerow({'publication':publication,'title':title,'doc_num':i+j*(document_batch-1),'authors_emails':authors['email'],'authors_names':list(authors['names']),'authors_addresses':list(authors['addresses']),'institutions':list(authors['addresses_names']),'keywords':list(keywords),'publication year':pub['date'],'if':_ifs,'times_cited':times_cited})
       except:
         print "couldn't write this one"
-
 
   # flush the writes
   csvfile.flush()
