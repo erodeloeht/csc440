@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 
 
 # need to add doc number
-url = 'https://apps.webofknowledge.com/full_record.do?product=UA&search_mode=GeneralSearch&qid=3&SID=1E3wtczCFF7O1Yax2oe&doc='
+url = 'https://apps.webofknowledge.com/full_record.do?product=UA&search_mode=GeneralSearch&qid=3&SID=2FVmhWDzraRTHtytJpU&doc='
 header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36'}
 
 # Header
@@ -20,17 +20,18 @@ csvfile = codecs.open('results.txt','w',encoding='utf-8')
 csv_writer = csv.DictWriter(csvfile,delimiter='\t',fieldnames=fieldnames)
 csv_writer.writeheader()
 
-document_batch = 95
+document_batch = 90
 error_flag = False
-for j in range(870):
+for j in range(900):
   if error_flag:
     break
-  time.sleep(20)
+  if j!= 0 and j%3==0:
+    time.sleep(600)
   for i in range(1,document_batch):
     if error_flag:
       break
     #else:
-    #  time.sleep(2)
+    time.sleep(2)
 
     # keeping track of the current document
     print 'getting document ',str(j*(document_batch-1)+i)
@@ -171,7 +172,7 @@ for j in range(870):
         #DEBUG print 'cited references',cited_references
         #DEBUG print 'times cited',times_cited
       except:
-        print 'Error getting citations'
+        #print 'Error getting citations'
         #cited_references = -1
         times_cited = 0
 
