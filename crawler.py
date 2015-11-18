@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 
 
 # need to add doc number
-url = 'https://apps.webofknowledge.com/full_record.do?product=UA&search_mode=GeneralSearch&qid=3&SID=2FVmhWDzraRTHtytJpU&doc='
+url = 'https://apps.webofknowledge.com/full_record.do?product=UA&search_mode=GeneralSearch&qid=3&SID=1BTBOAwcFcoN2kOhHgC&doc='
 header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36'}
 
 # Header
@@ -22,11 +22,14 @@ csv_writer.writeheader()
 
 document_batch = 90
 error_flag = False
-for j in range(900):
+first_run = True
+
+for j in range(63,612):
   if error_flag:
     break
-  if j!= 0 and j%3==0:
-    time.sleep(600)
+  if j!= 0 and j%3==0 and not first_run:
+    time.sleep(700)
+  first_run = False
   for i in range(1,document_batch):
     if error_flag:
       break
